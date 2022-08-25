@@ -11,20 +11,21 @@ struct point
   float x, y;
 };
 
-// Inicia en negro
-int r = 0, g = 0, b = 0, degree = 1;
-point T0 = {0, 0}, T1 = {200, 350}, T2 = {350, 100};
+// Inicia en negro con un grado = 1
+int r = 0, g = 0, b = 0, degree = 1, tmp = 0;
+// Puntos iniciales que luego iremos modificando con el mouse
+point T0 = {0, 0}, T1 = {MAX_WIDTH / 2, MAX_HEIGHT}, T2 = {MAX_WIDTH, 0};
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
 void iniciar(void)
 {
   glClearColor(1.0, 1.0, 1.0, 0.0);
-  glColor3f(0.0f, 0.0f, 0.0f);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0.0, MAX_WIDTH, 0.0, MAX_HEIGHT);
 }
 
+// Funcion auxiliar para encontrar el punto medio entre 2 puntos
 point midPoint(point A, point B)
 {
   float x = (A.x + B.x) / 2;
@@ -32,7 +33,10 @@ point midPoint(point A, point B)
 
   return {x, y};
 }
-
+/*
+Funcion encargada exclusivamente de dibujar un triangulo dado 3 puntos.
+  empty: indica si queremos que el triangulo tenga o no color
+*/
 void drawTriangle(point A, point B, point C, bool empty)
 {
   // Con este if chequeamos si pintar o no el triangulo. Esto con el proposito de hacer el triangulo vacio del medio
@@ -52,6 +56,7 @@ void drawTriangle(point A, point B, point C, bool empty)
   glEnd();
 }
 
+// Funcion recursiva encargada de la logica de Sierpinski
 void sierpinski(point A, point B, point C, int n)
 {
   if (n == 0)
@@ -69,15 +74,11 @@ void sierpinski(point A, point B, point C, int n)
   sierpinski(MAC, MBC, C, n - 1);
 }
 
+// Funcion encargada de dibujar el patron de Sierpinski
 void drawSierpinski(int n)
 {
-  float l = MAX_WIDTH - 100;
-  point A = T0;
-  point B = {l / 2, (sqrt(3) / 2) * l};
-  point C = {l, T0.y};
-
-  drawTriangle(A, B, C, false);
-  sierpinski(A, B, C, n);
+  drawTriangle(T0, T1, T2, false);
+  sierpinski(T0, T1, T2, n);
 }
 
 //<<<<<<<<<<<<<<<<< Dibujado >>>>>>>>>>>>>>>>
@@ -88,6 +89,14 @@ void draw(void)
   glFlush();
 }
 
+/*
+Cambia el color del dibujado dependiendo de la opcion
+
+  1: Rojo
+  2: Azul
+  3: Verde
+  4: Negro
+*/
 void changeDrawingColor(int option)
 {
   switch (option)
@@ -107,15 +116,68 @@ void changeDrawingColor(int option)
     break;
 
   case 3:
+    // Color verde
     r = 0;
     g = 255;
     b = 0;
+    break;
 
-  default:
+  case 4:
+    // Color negro
+    r = 0;
+    g = 0;
+    b = 0;
     break;
   }
 }
 
+/*
+Maneja las acciones del mouse, en este caso solo tendremos en cuenta los clicks principales.
+La variable tmp esta encargada de saber cual de los 3 puntos hay que modificar
+  1: T0
+  2: T1
+  3: T2
+*/
+
+void handleMouseAction(int button, int state, int x, int y)
+{
+  if (button == GLUT_LEFT_BUTTON)
+  {
+    if (state == GLUT_DOWN)
+    {
+      switch (tmp)
+      {
+      case 0:
+        T0.x = x;
+        T0.y = abs(y - MAX_HEIGHT);
+        tmp++;
+        break;
+      case 1:
+        T2.x = x;
+        T2.y = abs(y - MAX_HEIGHT);
+        tmp++;
+        break;
+      case 2:
+        T1.x = x;
+        T1.y = abs(y - MAX_HEIGHT);
+        tmp = 0;
+        break;
+      }
+      draw();
+    }
+  }
+}
+
+/*
+Controla las pulsaciones de teclas
+  a: disminuye el grado
+  s: aumenta el grado
+  q: reseteamos al estado inicial
+
+  r: color: rojo
+  g: color: verde
+  b: color: azul
+*/
 void handleKeyboardAction(unsigned char keyPressed, int x, int y)
 {
   switch (keyPressed)
@@ -150,10 +212,16 @@ void handleKeyboardAction(unsigned char keyPressed, int x, int y)
     changeDrawingColor(3);
     break;
 
-  default:
+  case 113:
+    // Tecla presionada: q
+    T0 = {0, 0};
+    T1 = {MAX_WIDTH / 2, MAX_HEIGHT};
+    T2 = {MAX_WIDTH, 0};
+    changeDrawingColor(4);
     break;
   }
 
+  // Redibuja con los cambios hechos
   draw();
 }
 
@@ -166,6 +234,7 @@ int main(int argc, char **argv)
   glutInitWindowPosition(100, 150);
   glutCreateWindow("Ejercicio 3");
   glutDisplayFunc(draw);
+  glutMouseFunc(handleMouseAction);
   glutKeyboardFunc(handleKeyboardAction);
   iniciar();
   glutMainLoop();
