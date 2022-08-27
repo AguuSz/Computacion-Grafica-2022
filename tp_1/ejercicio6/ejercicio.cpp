@@ -13,7 +13,7 @@ struct point
   float x, y;
 };
 
-// Inicia en negro con un grado = 1
+// Seteo los parametros iniciales
 bool isFirstVertexDrew = false;
 int mode = 0;
 int drawingSize = 5;
@@ -28,6 +28,7 @@ void iniciar()
   gluOrtho2D(0.0, MAX_WIDTH, 0.0, MAX_HEIGHT);
 }
 
+// Funcion auxiliar para mostrar un texto por pantalla
 void displayText(string textToDisplay, int x, int y)
 {
   glColor3f(0, 0, 0);
@@ -39,6 +40,7 @@ void displayText(string textToDisplay, int x, int y)
   }
 }
 
+// Funcion que se encarga de mostrar todos los controles en la esquina superior izquierda
 void showControls()
 {
   displayText("Controles", 10, MAX_HEIGHT - 20);
@@ -53,6 +55,8 @@ void showControls()
   displayText("Limpiar pantalla: r", 20, MAX_HEIGHT - 140);
 }
 
+// Funcion que obtiene el size para terminar mostrandolo abajo a la izquierda
+// Es necesario que este aparte, debido a que se va a llamar en cada actualizacion del size
 void showDrawingSize()
 {
   string displaySize = "Size: " + to_string(drawingSize);
@@ -105,9 +109,6 @@ void changeDrawingColor(int option)
 /*
 Maneja las acciones del mouse, en este caso solo tendremos en cuenta los clicks principales.
 La variable tmp esta encargada de saber cual de los 3 puntos hay que modificar
-  1: T0
-  2: T1
-  3: T2
 */
 
 void handleMouseAction(int button, int state, int x, int y)
@@ -150,16 +151,6 @@ void handleMouseAction(int button, int state, int x, int y)
   }
 }
 
-/*
-Controla las pulsaciones de teclas
-  a: disminuye el grado
-  s: aumenta el grado
-  q: reseteamos al estado inicial
-
-  r: color: rojo
-  g: color: verde
-  b: color: azul
-*/
 void handleKeyboardAction(unsigned char keyPressed, int x, int y)
 {
   switch (keyPressed)
