@@ -80,7 +80,7 @@ void drawDino(string fileName)
 void draw(void)
 {
   glClear(GL_COLOR_BUFFER_BIT);
-  drawDino("dino.bat");
+  drawDino("dino.dat");
   glFlush();
 }
 
