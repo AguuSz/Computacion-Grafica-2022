@@ -1,6 +1,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <cmath>
+#include <iostream>
 using namespace std;
 
 #define MAX_WIDTH 640
@@ -31,51 +32,111 @@ void iniciar()
 void draw()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_LINE_STRIP);
+    glVertex2d(168, 325);
+    glVertex2d(419, 161);
+    glEnd();
     glFlush();
 }
 
-void drawLine(point p0, point p1)
+void drawLine(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 {
-    int x, m;
-    float y;
+    GLfloat M, p, dx, dy, x, y, t;
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    // Condicion para eliminar la restriccion de x0 < x1
-    if (p0.x > p1.x)
-    {
-        drawLine(p1, p0);
-        return;
-    }
-
-    int dx = p1.x - p0.x;
-    int dy = p1.y - p0.y;
-    int d = dx - 2 * dy;
-    y = p0.y;
-
-    if (dy < 0)
-    {
-        m = -1;
-        dy = -dy;
-    }
+    if ((x2 - x1) == 0)
+        M = (y2 - y1);
     else
-    {
-        m = 1;
-    }
+        M = (y2 - y1) / (x2 - x1);
 
-    for (x = p0.x; x < p1.x; x++)
+    if (fabs(M) < 1)
     {
-        glBegin(GL_POINTS);
-        glVertex2f(x, y);
-        if (d <= 0)
+        if (x1 > x2)
         {
-            d += 2 * dx - 2 * dy;
-            y += m;
+            t = x1;
+            x1 = x2;
+            x2 = t;
+
+            t = y1;
+            y1 = y2;
+            y2 = t;
         }
-        else
+
+        dx = fabs(x2 - x1);
+        dy = fabs(y2 - y1);
+
+        p = 2 * dy - dx;
+
+        x = x1;
+        y = y1;
+
+        glBegin(GL_POINTS);
+        while (x <= x2)
         {
-            d += -2 * dy;
+            glVertex2f(x, y);
+            x = x + 1;
+
+            if (p >= 0)
+            {
+                if (M < 1)
+                    y = y + 1;
+                else
+                    y = y - 1;
+                p = p + 2 * dy - 2 * dx;
+            }
+            else
+            {
+                y = y;
+                p = p + 2 * dy;
+            }
         }
         glEnd();
     }
+
+    if (fabs(M) >= 1)
+    {
+        if (y1 > y2)
+        {
+            t = x1;
+            x1 = x2;
+            x2 = t;
+
+            t = y1;
+            y1 = y2;
+            y2 = t;
+        }
+
+        dx = fabs(x2 - x1);
+        dy = fabs(y2 - y1);
+
+        p = 2 * dx - dy;
+
+        x = x1;
+        y = y1;
+
+        glBegin(GL_POINTS);
+        while (y <= y2)
+        {
+            glVertex2f(x, y);
+            y = y + 1;
+
+            if (p >= 0)
+            {
+                if (M >= 1)
+                    x = x + 1;
+                else
+                    x = x - 1;
+                p = p + 2 * dx - 2 * dy;
+            }
+            else
+            {
+                x = x;
+                p = p + 2 * dx;
+            }
+        }
+        glEnd();
+    }
+
     glFlush();
 }
 
@@ -95,7 +156,7 @@ void handleMouseAction(int button, int state, int x, int y)
             {
                 endPoint.x = x;
                 endPoint.y = abs(y - MAX_HEIGHT);
-                drawLine(initialPoint, endPoint);
+                drawLine(initialPoint.x, initialPoint.y, endPoint.x, endPoint.y);
                 isFirstVertexDrew = false;
             }
         }
@@ -109,7 +170,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("Ejercicio 1");
+    glutCreateWindow("Ejercicio 2");
     glutDisplayFunc(draw);
     glutMouseFunc(handleMouseAction);
     iniciar();
