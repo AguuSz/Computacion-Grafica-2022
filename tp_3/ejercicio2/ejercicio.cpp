@@ -15,6 +15,62 @@ struct Point
 };
 
 int mouseOffsetX = 0, mouseOffsetY = 0;
+Point housePoints[] = {0, 0,
+                       100, 0,
+                       100, 0,
+                       100, 120,
+                       100, 120,
+                       0, 120,
+                       0, 120,
+                       0, 0,
+                       0, 120,
+                       50, 170,
+                       50, 170,
+                       100, 120,
+                       100, 120,
+                       0, 120,
+                       75, 148,
+                       75, 170,
+                       75, 170,
+                       90, 170,
+                       90, 170,
+                       90, 130,
+                       90, 130,
+                       75, 148,
+                       60, 100,
+                       90, 100,
+                       90, 100,
+                       90, 80,
+                       90, 80,
+                       60, 80,
+                       60, 80,
+                       60, 100,
+                       15, 0,
+                       15, 45,
+                       15, 45,
+                       40, 45,
+                       40, 45,
+                       40, 0,
+                       100, 70,
+                       170, 70,
+                       170, 70,
+                       170, 0,
+                       170, 0,
+                       100, 0,
+                       170, 70,
+                       100, 105,
+                       100, 105,
+                       100, 70,
+                       100, 70,
+                       170, 70,
+                       120, 55,
+                       160, 55,
+                       160, 55,
+                       160, 40,
+                       160, 40,
+                       120, 40,
+                       120, 40,
+                       120, 55};
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
 void iniciar(void)
@@ -43,53 +99,33 @@ void handleMouseAction(int button, int state, int x, int y)
     }
 }
 
-void drawHouse(int offsetX = 0, int offsetY = 0)
+Point rotate(Point point, double theta)
 {
-    Point housePoints[] = {40, 0, 40, 45, 15, 45, 15, 0, 0, 0, 0, 120, 100, 120, 75, 145, 75, 170, 90, 170, 90, 130, 50,
-                           170, 0, 120, 100, 120, 100, 0, 15, 0};
-    Point garagePoints[] = {100, 0, 100, 105, 170, 70, 170, 0, 100, 0, 100, 70, 170, 70};
+    int x, y;
+    x = point.x * cos(theta) - point.y * sin(theta);
+    y = point.x * sin(theta) + point.y * cos(theta);
 
-    glBegin(GL_LINE_STRIP);
+    return Point{x, y};
+}
+
+void drawHouse(int offsetX = 0, int offsetY = 0, double theta = 0)
+{
+    glBegin(GL_LINES);
     for (Point point : housePoints)
     {
+        if (theta != 0)
+            point = rotate(point, theta);
         glVertex2d(mouseOffsetX + point.x + offsetX, mouseOffsetY + point.y + offsetY);
     }
-    glEnd();
-
-    // Dibujado de la ventana casa
-    glBegin(GL_LINE_STRIP);
-    glVertex2d(mouseOffsetX + 60 + offsetX, mouseOffsetY + 100 + offsetY);
-    glVertex2d(mouseOffsetX + 90 + offsetX, mouseOffsetY + 100 + offsetY);
-    glVertex2d(mouseOffsetX + 90 + offsetX, mouseOffsetY + 80 + offsetY);
-    glVertex2d(mouseOffsetX + 60 + offsetX, mouseOffsetY + 80 + offsetY);
-    glVertex2d(mouseOffsetX + 60 + offsetX, mouseOffsetY + 100 + offsetY);
-    glEnd();
-
-    // Dibujado del garage
-    glBegin(GL_LINE_STRIP);
-    for (Point point : garagePoints)
-    {
-        glVertex2d(mouseOffsetX + point.x + offsetX, mouseOffsetY + point.y + offsetY);
-    }
-    glEnd();
-
-    // Dibujado ventana garage
-    glBegin(GL_LINE_STRIP);
-    glVertex2d(mouseOffsetX + 120 + offsetX, mouseOffsetY + 55 + offsetY);
-    glVertex2d(mouseOffsetX + 160 + offsetX, mouseOffsetY + 55 + offsetY);
-    glVertex2d(mouseOffsetX + 160 + offsetX, mouseOffsetY + 40 + offsetY);
-    glVertex2d(mouseOffsetX + 120 + offsetX, mouseOffsetY + 40 + offsetY);
-    glVertex2d(mouseOffsetX + 120 + offsetX, mouseOffsetY + 55 + offsetY);
     glEnd();
 }
 
 //<<<<<<<<<<<<<<<<< Dibujado >>>>>>>>>>>>>>>>
 void draw(void)
 {
-    double theta = M_PI / 3;
     glClear(GL_COLOR_BUFFER_BIT);
     drawHouse();
-    //    drawHouse(32, 35);
+    drawHouse(200, 200, -M_PI / 6);
     glFlush();
 }
 
