@@ -83,6 +83,31 @@ void iniciar(void)
     gluOrtho2D(0.0, MAX_WIDTH, 0.0, MAX_HEIGHT);
 }
 
+void handleKeyboardAction(unsigned char keyPressed, int x, int y)
+{
+    switch (keyPressed)
+    {
+    case 97:
+        // Tecla presionada: a
+        glColor3f(255, 0, 0);
+        break;
+    case 115:
+        // Tecla presionada: s
+        glColor3f(0, 255, 0);
+        break;
+
+    case 100:
+        // Tecla presionada: d
+        glColor3f(0, 0, 255);
+        break;
+    case 113:
+        // Tecla presionada: q
+        glColor3f(0, 0, 0);
+        break;
+    }
+    glutPostRedisplay();
+}
+
 void handleMouseAction(int button, int state, int x, int y)
 {
     if (button == GLUT_LEFT_BUTTON)
@@ -91,12 +116,9 @@ void handleMouseAction(int button, int state, int x, int y)
         {
             mouseOffsetX = x;
             mouseOffsetY = abs(y - MAX_HEIGHT);
-
-            //            cout << "X: " << x << " | Y: " << abs(y - MAX_HEIGHT) << endl;
-
-            glutPostRedisplay();
         }
     }
+    glutPostRedisplay();
 }
 
 Point rotate(Point point, double theta)
@@ -139,6 +161,7 @@ int main(int argc, char **argv)
     glutCreateWindow("TP_3 | Ejercicio 1");
     glutDisplayFunc(draw);
     glutMouseFunc(handleMouseAction);
+    glutKeyboardFunc(handleKeyboardAction);
     iniciar();
     glutMainLoop();
 }
