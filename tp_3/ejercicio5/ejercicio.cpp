@@ -3,11 +3,9 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
-#include <ctime>
 
-#define MAX_WIDTH 640
-#define MAX_HEIGHT 480
+#define MAX_WIDTH 1024
+#define MAX_HEIGHT 576
 
 using namespace std;
 
@@ -23,9 +21,7 @@ void iniciar(void)
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glColor3f(0.0f, 0.0f, 0.0f);
     glMatrixMode(GL_PROJECTION);
-    // TODO: Borrar estas lineas una vez terminemos
     glLineWidth(3);
-    glPointSize(10);
     glLoadIdentity();
     gluOrtho2D(0.0, MAX_WIDTH, 0.0, MAX_HEIGHT);
 }
@@ -39,10 +35,10 @@ Point rotate(Point point, double theta)
     return Point{x, y};
 }
 
-void drawDino(int offsetX, int offsetY, float scaleFactor)
+void drawDino(int offsetX, int offsetY, float scaleFactor, float theta)
 {
     ifstream file("../dino.dat");
-    string line = "";
+    string line;
 
     getline(file, line);
     getline(file, line);
@@ -60,6 +56,7 @@ void drawDino(int offsetX, int offsetY, float scaleFactor)
         int cantidadPuntos = stoi(line);
         Point previousPoint;
 
+        glBegin(GL_LINE_STRIP);
         for (int j = 0; j < cantidadPuntos; j++)
         {
             getline(file, line);
@@ -74,33 +71,29 @@ void drawDino(int offsetX, int offsetY, float scaleFactor)
             temporaryPoint.x = stoi(line.substr(0, line.find(' ')));
             temporaryPoint.y = stoi(line.substr(line.find(' '), line.length() - 1));
 
-            if (j == 0)
-            {
-                previousPoint.x = temporaryPoint.x;
-                previousPoint.y = temporaryPoint.y;
-            }
+            temporaryPoint = rotate(temporaryPoint, theta);
 
-            glBegin(GL_LINE_STRIP);
-            glVertex2d(previousPoint.x * scaleFactor - 62 + offsetX, previousPoint.y * scaleFactor + offsetY);
-            glVertex2d(temporaryPoint.x * scaleFactor - 62 + offsetX, temporaryPoint.y * scaleFactor + offsetY);
-            glEnd();
-
-            previousPoint = temporaryPoint;
+            glVertex2d(temporaryPoint.x * scaleFactor + offsetX, temporaryPoint.y * scaleFactor + offsetY);
         }
+        glEnd();
     }
     file.close();
 }
 
-void drawCircle()
+void drawCircle(bool rotated)
 {
-    float radius = 180.0f;
+    float radius = 150.0f;
     for (int i = 0; i < 12; i++)
     {
         float theta = 2.0f * M_PI * float(i) / 12.0f;
         float x = radius * cosf(theta) + MAX_WIDTH / 2;
-        float y = radius * sinf(theta) + MAX_HEIGHT / 2 - 50;
+        float y = radius * sinf(theta) + MAX_HEIGHT / 2;
+        float thetaRotation = theta - M_PI_2;
 
-        drawDino(x, y, 0.2);
+        if (!rotated)
+            thetaRotation = 0;
+
+        drawDino(x, y, 0.2, thetaRotation);
     }
 }
 
@@ -108,7 +101,7 @@ void drawCircle()
 void draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    drawCircle();
+    drawCircle(false);
     glFlush();
 }
 
