@@ -53,7 +53,7 @@ void rotate()
 
 void drawHouse()
 {
-    ifstream file("../files/basicbar.3vn");
+    ifstream file("basicbar.3vn");
 
     int numVertices, numNormales, numSuperficies;
     file >> numVertices >> numNormales >> numSuperficies;
@@ -63,15 +63,11 @@ void drawHouse()
     // Relleno de matrices
     for (int i = 0; i < numVertices; i++)
     {
-        file >> vertices[i].x;
-        file >> vertices[i].y;
-        file >> vertices[i].z;
+        file >> vertices[i].x >> vertices[i].y >> vertices[i].z;
     }
     for (int i = 0; i < numNormales; i++)
     {
-        file >> normales[i].x;
-        file >> normales[i].y;
-        file >> normales[i].z;
+        file >> normales[i].x >> normales[i].y >> normales[i].z;
     }
 
     // Creacion de superficies en base a los vertices ya creados
