@@ -20,6 +20,7 @@ struct point3D
 };
 
 int theta;
+int widthAngle = -45, heightAngle = 45;
 GLenum drawingStyle = GL_LINE;
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
@@ -41,6 +42,28 @@ void handleKeyboardAction(unsigned char keyPressed, int x, int y)
             drawingStyle = GL_LINE;
         break;
     }
+    glutPostRedisplay();
+}
+
+// Funcion encargada de controlar las acciones cuando se pulsa una flecha del teclado
+void handleWindowSpecial(int key, int x, int y)
+{
+    switch (key)
+    {
+    case GLUT_KEY_RIGHT:
+        widthAngle += 5;
+        break;
+    case GLUT_KEY_LEFT:
+        widthAngle -= 5;
+        break;
+    case GLUT_KEY_UP:
+        heightAngle += 5;
+        break;
+    case GLUT_KEY_DOWN:
+        heightAngle -= 5;
+        break;
+    }
+
     glutPostRedisplay();
 }
 
@@ -111,8 +134,8 @@ void draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glRotatef(45, 1, 0, 0);
-    glRotatef(-50, 0, 1, 0);
+    glRotatef(heightAngle, 1, 0, 0); // Controla el alto
+    glRotatef(widthAngle, 0, 1, 0);  // Controla lo horizontal
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
     drawAxis();
@@ -132,6 +155,7 @@ int main(int argc, char **argv)
     glutCreateWindow("TP_4 | Ejercicio 2");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
+    glutSpecialFunc(handleWindowSpecial);
     iniciar();
     glutMainLoop();
 }
