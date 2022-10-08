@@ -1,5 +1,5 @@
 //
-// Created by agus on 03/10/22.
+// Created by agus on 04/10/22.
 //
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -19,74 +19,68 @@ struct point3D
     float z;
 };
 
-int theta;
-int widthAngle = -45, heightAngle = 45;
+float xPosition;
+float yPosition = 1;
+float zPosition;
+float theta = 0;
+float radius = 10;
 GLenum drawingStyle = GL_LINE;
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
+
+void updateCameraRotation()
+{
+    xPosition = radius * sin(theta);
+    zPosition = radius * cos(theta);
+}
+
 void iniciar(void)
 {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glColor3f(0.0f, 0.0f, 0.0f);
+    gluPerspective(45, (float)16 / 9, 0.1, 100);
+    glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
+    updateCameraRotation();
 }
 
 void handleKeyboardAction(unsigned char keyPressed, int x, int y)
 {
     switch (keyPressed)
     {
-    case 97:
-        // Tecla presionada: a
+    case 'f':
         if (drawingStyle == GL_LINE)
             drawingStyle = GL_FILL;
         else
             drawingStyle = GL_LINE;
         break;
+    case 's':
+        radius++;
+        break;
+    case 'w':
+        radius--;
+        break;
+    case 'd':
+        theta += 0.0872665; // +5 grados
+        break;
+    case 'a':
+        theta -= 0.0872665; // -5 grados
+        break;
+    case 'e':
+        yPosition++;
+        break;
+    case 'q':
+        yPosition--;
     }
+    updateCameraRotation();
     glutPostRedisplay();
-}
-
-// Funcion encargada de controlar las acciones cuando se pulsa una flecha del teclado
-void handleWindowSpecial(int key, int x, int y)
-{
-    switch (key)
-    {
-    case GLUT_KEY_RIGHT:
-        widthAngle += 5;
-        break;
-    case GLUT_KEY_LEFT:
-        widthAngle -= 5;
-        break;
-    case GLUT_KEY_UP:
-        heightAngle += 5;
-        break;
-    case GLUT_KEY_DOWN:
-        heightAngle -= 5;
-        break;
-    }
-
-    glutPostRedisplay();
-}
-
-void drawAxis()
-{
-    glBegin(GL_LINES);
-    // Eje X
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(2.0, 0.0, 0.0);
-
-    // Eje Y
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 2.0, 0.0);
-
-    // Eje Z
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 0.0, 2.0);
-    glEnd();
 }
 
 void drawPrism()
 {
-    ifstream file("/home/agus/CLionProjects/untitled/prism.3vn");
+    ifstream file("prism.3vn");
 
     int numVertices, numNormales, numSuperficies;
     file >> numVertices >> numNormales >> numSuperficies;
@@ -129,19 +123,34 @@ void drawPrism()
     }
 }
 
+void drawAxis()
+{
+    glBegin(GL_LINES);
+    // Eje X
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(2.0, 0.0, 0.0);
+
+    // Eje Y
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 2.0, 0.0);
+
+    // Eje Z
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 2.0);
+    glEnd();
+}
+
 //<<<<<<<<<<<<<<<<< Dibujado >>>>>>>>>>>>>>>>
 void draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glRotatef(heightAngle, 1, 0, 0); // Controla el alto
-    glRotatef(widthAngle, 0, 1, 0);  // Controla lo horizontal
+    gluLookAt(xPosition, yPosition, zPosition, 0, 0, 0, 0, 1, 0);
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
     drawAxis();
     drawPrism();
 
-    glFlush();
     glutSwapBuffers();
 }
 
@@ -152,10 +161,9 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("TP_4 | Ejercicio 2");
+    glutCreateWindow("TP_4 | Ejercicio 6");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
-    glutSpecialFunc(handleWindowSpecial);
     iniciar();
     glutMainLoop();
 }
