@@ -46,6 +46,18 @@ void iniciar(void)
     updateCameraRotation();
 }
 
+// Funcion auxiliar para mostrar un texto por pantalla
+void displayText(string textToDisplay, float x, float y, float z)
+{
+    glColor3f(0, 0, 0);
+    glRasterPos3f(x, y, z);
+
+    for (char character : textToDisplay)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, character);
+    }
+}
+
 void handleKeyboardAction(unsigned char keyPressed, int x, int y)
 {
     switch (keyPressed)
@@ -97,29 +109,53 @@ void drawAxis()
     glEnd();
 }
 
-void drawTesting(float offsetZ = 0)
+void drawArrow(float offsetZ = 0)
 {
-    ifstream file("./files/testing3.3vn");
+    ifstream file("./files/arrow2d.3vn");
 
     int numVertices;
     file >> numVertices;
 
-    point3D vertices[numVertices];
+    point3D vertices[numVertices * 2];
 
     // Relleno de matrices
     for (int i = 0; i < numVertices; i++)
     {
         file >> vertices[i].x >> vertices[i].y;
+        vertices[i].z = 0;
+    }
+    for (int i = numVertices; i < numVertices * 2; i++)
+    {
+        vertices[i].x = vertices[i - numVertices].x;
+        vertices[i].y = vertices[i - numVertices].y;
         vertices[i].z = offsetZ;
     }
 
+    glTranslated(1, 1, 1);
+    for (int i = 0; i < numVertices * 2; i++)
+    {
+        displayText(to_string(i), vertices[i].x, vertices[i].y, vertices[i].z);
+    }
+
     glBegin(GL_POLYGON);
-    for (int i = 0; i < numVertices; i++)
+    for (int i = 0; i < 7; i++)
     {
         // Obtengo los vertices de la superficie
         glVertex3d(vertices[i].x, vertices[i].y, vertices[i].z);
+        glVertex3d(vertices[i + numVertices].x, vertices[i + numVertices].y, vertices[i + numVertices].z);
+        if (i == numVertices - 1)
+        {
+            glVertex3d(vertices[numVertices].x, vertices[numVertices].y, vertices[numVertices].z);
+            glVertex3d(vertices[0].x, vertices[0].y, vertices[0].z);
+        }
+        else
+        {
+            glVertex3d(vertices[i + numVertices + 1].x, vertices[i + numVertices + 1].y,
+                       vertices[i + numVertices + 1].z);
+            glVertex3d(vertices[i + 1].x, vertices[i + 1].y, vertices[i + 1].z);
+        }
+        glVertex3d(vertices[i].x, vertices[i].y, vertices[i].z);
     }
-
     glEnd();
 }
 
@@ -132,8 +168,7 @@ void draw(void)
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
     drawAxis();
-    drawTesting();
-    drawTesting(2);
+    drawArrow(2);
 
     glutSwapBuffers();
 }
