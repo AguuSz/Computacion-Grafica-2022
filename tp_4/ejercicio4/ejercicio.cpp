@@ -68,18 +68,29 @@ void handleKeyboardAction(unsigned char keyPressed, int x, int y)
         theta -= 0.0872665; // -5 grados
         break;
     case 'e':
-        yPosition++;
+        yPosition += 0.2;
         break;
     case 'q':
-        yPosition--;
+        yPosition -= 0.2;
     }
     updateCameraRotation();
     glutPostRedisplay();
 }
 
+point3D rotateY(point3D point, float theta)
+{
+    float x, y, z;
+    x = point.x * cos(theta) - point.z * sin(theta);
+    y = point.y;
+    z = point.z * cos(theta) + point.x * sin(theta);
+
+    return point3D{x, y, z};
+}
+
 void drawAxis()
 {
     glBegin(GL_LINES);
+    glColor3f(0.0, 1.0, 0.0);
     // Eje X
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(50.0, 0.0, 0.0);
@@ -91,42 +102,48 @@ void drawAxis()
     // Eje Z
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0, 50.0);
+    glColor3f(0.0, 0.0, 0.0);
     glEnd();
 }
 
-void drawMahal()
+void drawMahal(float offset = 0)
 {
     ifstream file("mahal.dat");
 
     int numVertices;
     file >> numVertices;
 
-    point3D vertices[numVertices];
+    int slices = 17;
+    point3D vertices[numVertices * slices];
 
     // Relleno de matrices
     for (int i = 0; i < numVertices; i++)
     {
         file >> vertices[i].x >> vertices[i].y;
-        vertices[i].z = 0;
+        vertices[i].z = offset;
+    }
+
+    // Relleno de matriz con los puntos restantes
+    for (int j = 0; j < slices; j++)
+    {
+        for (int i = 0; i < numVertices; i++)
+        {
+            point3D tempPoint = rotateY(vertices[i], (M_PI / 8) * j);
+            vertices[i + numVertices * j].x = tempPoint.x;
+            vertices[i + numVertices * j].y = tempPoint.y;
+            vertices[i + numVertices * j].z = tempPoint.z;
+        }
     }
 
     glBegin(GL_POLYGON);
-    for (int i = 0; i < numVertices; i++)
+    for (int i = 0; i < numVertices * (slices - 1); i++)
     {
         // Obtengo los vertices de la superficie
-        glVertex3d(vertices[i].x * 2, vertices[i].y * 2, vertices[i].z * 2);
+        glVertex3d(vertices[i].x, vertices[i].y, vertices[i].z);
+        glVertex3d(vertices[i + numVertices].x, vertices[i + numVertices].y, vertices[i + numVertices].z);
+        glVertex3d(vertices[i].x, vertices[i].y, vertices[i].z);
     }
-
     glEnd();
-}
-
-void drawStuff()
-{
-    for (int i = 0; i < 360; i += 1)
-    {
-        glRotated(i, 0, 1, 0);
-        drawMahal();
-    }
 }
 
 //<<<<<<<<<<<<<<<<< Dibujado >>>>>>>>>>>>>>>>
@@ -138,7 +155,7 @@ void draw(void)
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
     drawAxis();
-    drawStuff();
+    drawMahal();
 
     glutSwapBuffers();
 }
