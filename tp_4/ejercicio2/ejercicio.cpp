@@ -22,8 +22,8 @@ struct point3D
 float xPosition;
 float yPosition = 1;
 float zPosition;
-float theta = 0;
-float radius = 10;
+float theta = M_PI_4;
+float radius = 4;
 GLenum drawingStyle = GL_LINE;
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
@@ -42,7 +42,6 @@ void iniciar(void)
     glColor3f(0.0f, 0.0f, 0.0f);
     gluPerspective(45, (float)16 / 9, 0.1, 100);
     glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_DEPTH_TEST);
     updateCameraRotation();
 }
 
@@ -69,18 +68,47 @@ void handleKeyboardAction(unsigned char keyPressed, int x, int y)
         theta -= 0.0872665; // -5 grados
         break;
     case 'e':
-        yPosition++;
+        yPosition += 0.2;
         break;
     case 'q':
-        yPosition--;
+        yPosition -= 0.2;
     }
     updateCameraRotation();
     glutPostRedisplay();
 }
 
+point3D rotateY(point3D point, float theta)
+{
+    float x, y, z;
+    x = point.x * cos(theta) - point.z * sin(theta);
+    y = point.y;
+    z = point.z * cos(theta) + point.x * sin(theta);
+
+    return point3D{x, y, z};
+}
+
+void drawAxis()
+{
+    glBegin(GL_LINES);
+    glColor3f(0.0, 1.0, 0.0);
+    // Eje X
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(50.0, 0.0, 0.0);
+
+    // Eje Y
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 50.0, 0.0);
+
+    // Eje Z
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 50.0);
+    glColor3f(0.0, 0.0, 0.0);
+    glEnd();
+}
+
 void drawPrism()
 {
-    ifstream file("prism.3vn");
+    ifstream file("./files/prism.3vn");
 
     int numVertices, numNormales, numSuperficies;
     file >> numVertices >> numNormales >> numSuperficies;
@@ -123,29 +151,12 @@ void drawPrism()
     }
 }
 
-void drawAxis()
-{
-    glBegin(GL_LINES);
-    // Eje X
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(2.0, 0.0, 0.0);
-
-    // Eje Y
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 2.0, 0.0);
-
-    // Eje Z
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 0.0, 2.0);
-    glEnd();
-}
-
 //<<<<<<<<<<<<<<<<< Dibujado >>>>>>>>>>>>>>>>
 void draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    gluLookAt(xPosition, yPosition, zPosition, 0, 0, 0, 0, 1, 0);
+    gluLookAt(xPosition, yPosition, zPosition, 0, yPosition, 0, 0, 1, 0);
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
     drawAxis();
@@ -161,7 +172,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("TP_4 | Ejercicio 6");
+    glutCreateWindow("TP_4 | Ejercicio 4");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
     iniciar();
