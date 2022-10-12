@@ -72,6 +72,7 @@ void handleKeyboardAction(unsigned char keyPressed, int x, int y)
         break;
     case 'q':
         yPosition--;
+        break;
     }
     updateCameraRotation();
     glutPostRedisplay();
