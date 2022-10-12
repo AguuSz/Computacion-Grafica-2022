@@ -1,3 +1,6 @@
+//
+// Created by agus on 04/10/22.
+//
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <cmath>
@@ -16,44 +19,96 @@ struct point3D
     float z;
 };
 
-int theta;
+float xPosition;
+float yPosition = 1;
+float zPosition;
+float theta = 0;
+float radius = 5;
 GLenum drawingStyle = GL_LINE;
 
 //<<<<<<<<<<<<< Inicialización >>>>>>>>>>>>>
+
+void updateCameraRotation()
+{
+    xPosition = radius * sin(theta);
+    zPosition = radius * cos(theta);
+}
+
 void iniciar(void)
 {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     glClearColor(1.0, 1.0, 1.0, 0.0);
     glColor3f(0.0f, 0.0f, 0.0f);
-    //    glMatrixMode(GL_PROJECTION);
-    //    gluOrtho2D(-1, 2, 0, 5);
+    gluPerspective(45, (float)16 / 9, 0.1, 100);
+    glMatrixMode(GL_MODELVIEW);
+    updateCameraRotation();
 }
 
 void handleKeyboardAction(unsigned char keyPressed, int x, int y)
 {
     switch (keyPressed)
     {
-    case 97:
-        // Tecla presionada: a
+    case 'f':
         if (drawingStyle == GL_LINE)
             drawingStyle = GL_FILL;
         else
             drawingStyle = GL_LINE;
         break;
+    case 's':
+        radius++;
+        break;
+    case 'w':
+        radius--;
+        break;
+    case 'd':
+        theta += 0.0872665; // +5 grados
+        break;
+    case 'a':
+        theta -= 0.0872665; // -5 grados
+        break;
+    case 'e':
+        yPosition += 0.2;
+        break;
+    case 'q':
+        yPosition -= 0.2;
     }
+    updateCameraRotation();
     glutPostRedisplay();
 }
 
-void rotate()
+point3D rotateY(point3D point, float theta)
 {
-    theta += 1;
-    if (theta > 360)
-        theta = 0;
-    glutPostRedisplay();
+    float x, y, z;
+    x = point.x * cos(theta) - point.z * sin(theta);
+    y = point.y;
+    z = point.z * cos(theta) + point.x * sin(theta);
+
+    return point3D{x, y, z};
+}
+
+void drawAxis()
+{
+    glBegin(GL_LINES);
+    glColor3f(0.0, 1.0, 0.0);
+    // Eje X
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(50.0, 0.0, 0.0);
+
+    // Eje Y
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 50.0, 0.0);
+
+    // Eje Z
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 50.0);
+    glColor3f(0.0, 0.0, 0.0);
+    glEnd();
 }
 
 void drawHouse()
 {
-    ifstream file("basicbar.3vn");
+    ifstream file("./files/basicbar.3vn");
 
     int numVertices, numNormales, numSuperficies;
     file >> numVertices >> numNormales >> numSuperficies;
@@ -100,12 +155,12 @@ void draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glRotatef(theta, 0, 1, 0);
+    gluLookAt(xPosition, yPosition, zPosition, 0, yPosition, 0, 0, 1, 0);
     glPolygonMode(GL_FRONT_AND_BACK, drawingStyle);
 
+    drawAxis();
     drawHouse();
 
-    glFlush();
     glutSwapBuffers();
 }
 
@@ -116,8 +171,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("TP_4 | Ejercicio 1");
-    glutIdleFunc(rotate);
+    glutCreateWindow("TP_4 | Ejercicio 4");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
     iniciar();
