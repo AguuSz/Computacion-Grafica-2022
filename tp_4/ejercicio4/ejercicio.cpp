@@ -20,9 +20,9 @@ struct point3D
 };
 
 float xPosition;
-float yPosition = 1;
+float yPosition = 2;
 float zPosition;
-float theta = 0;
+float theta = M_PI_4;
 float radius = 10;
 GLenum drawingStyle = GL_LINE;
 
@@ -108,7 +108,7 @@ void drawAxis()
 
 void drawMahal(float offset = 0)
 {
-    ifstream file("mahal.dat");
+    ifstream file("./files/mahal.dat");
 
     int numVertices;
     file >> numVertices;
