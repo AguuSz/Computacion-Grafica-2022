@@ -131,7 +131,6 @@ void drawArrow(float offsetZ = 0)
         vertices[i].z = offsetZ;
     }
 
-    glTranslated(1, 1, 1);
     for (int i = 0; i < numVertices * 2; i++)
     {
         displayText(to_string(i), vertices[i].x, vertices[i].y, vertices[i].z);
@@ -180,7 +179,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("TP_4 | Ejercicio 5");
+    glutCreateWindow("TP_4 | Ejercicio 3");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
     iniciar();
