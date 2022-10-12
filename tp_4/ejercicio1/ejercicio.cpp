@@ -171,7 +171,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
     glutInitWindowPosition(100, 150);
-    glutCreateWindow("TP_4 | Ejercicio 4");
+    glutCreateWindow("TP_4 | Ejercicio 1");
     glutDisplayFunc(draw);
     glutKeyboardFunc(handleKeyboardAction);
     iniciar();
